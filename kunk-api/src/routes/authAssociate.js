@@ -33,8 +33,11 @@ function clearAssociateCookie(res) {
 router.post('/register-email', async (req, res, next) => {
   try {
     assertAuthEnumRateLimit(req, 'assoc-register');
-    const { email, password } = req.body || {};
-    const { user, sessionToken, expires } = await associateAuthRepository.registerEmail(email, password);
+    const { email, password, associate_name, mobile_number } = req.body || {};
+    const { user, sessionToken, expires } = await associateAuthRepository.registerEmail(email, password, {
+      associate_name,
+      mobile_number,
+    });
     setAssociateCookie(res, sessionToken, expires);
     res.status(201).json(ok({ user }));
   } catch (err) {

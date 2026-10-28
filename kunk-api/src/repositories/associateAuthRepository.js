@@ -195,9 +195,12 @@ function assertPassword(password) {
   }
 }
 
-async function registerEmail(email, password) {
+async function registerEmail(email, password, profile = {}) {
   assertPassword(password);
   const normalized = await assertLoginEmailAvailable(email);
+  // Cannabcura: nome e WhatsApp já na criação da conta (opcionais na API).
+  const associateName = String(profile.associate_name || '').trim().slice(0, 255) || null;
+  const mobileNumber = String(profile.mobile_number || '').replace(/\D/g, '').slice(0, 20) || null;
 
   const passwordHash = await hashPassword(String(password));
   const userCode = uuidv4();
@@ -206,10 +209,10 @@ async function registerEmail(email, password) {
   const result = await query(
     `INSERT INTO users (
       email_account, account_password, associate_status, status, user_code,
-      date_created, created_date, invalid_fields
-    ) VALUES ($1, $2, $3, $3, $4, NOW(), NOW(), $5)
+      date_created, created_date, invalid_fields, associate_name, mobile_number
+    ) VALUES ($1, $2, $3, $3, $4, NOW(), NOW(), $5, $6, $7)
     RETURNING *`,
-    [normalized, passwordHash, PHASE.CADASTRO_CRIADO, userCode, JSON.stringify([])]
+    [normalized, passwordHash, PHASE.CADASTRO_CRIADO, userCode, JSON.stringify([]), associateName, mobileNumber]
   );
 
   const { sessionToken, expires } = await createSession(result.rows[0].id);

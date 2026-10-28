@@ -496,7 +496,7 @@ export function AdminShell({ api }) {
               />
             </div>
           ) : null}
-          <span className="brand-text">Kunk Admin</span>
+          <span className="brand-text">Administrador</span>
         </div>
 
         <TopNavLink to="/home" icon="home">

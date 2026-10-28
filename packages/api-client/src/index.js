@@ -69,7 +69,8 @@ export function createApiClient({ baseUrl, app } = {}) {
     revokeApiToken: (id) => request('DELETE', `/auth/tokens/${id}`),
 
     // Associate auth
-    registerEmail: (email, password) => request('POST', '/auth/associate/register-email', { email, password }),
+    registerEmail: (email, password, profile = {}) =>
+      request('POST', '/auth/associate/register-email', { email, password, ...profile }),
     loginAssociate: (email, password) => request('POST', '/auth/associate/login', { email, password }),
     logoutAssociate: () => request('POST', '/auth/associate/logout', {}),
     meAssociate: () => request('GET', '/auth/associate/me'),

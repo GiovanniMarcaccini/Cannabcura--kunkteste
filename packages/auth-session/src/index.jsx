@@ -63,8 +63,8 @@ export function AssociateAuthProvider({ api, children }) {
     loading,
     refresh,
     setUser,
-    async registerEmail(email, password) {
-      const res = await api.registerEmail(email, password);
+    async registerEmail(email, password, profile = {}) {
+      const res = await api.registerEmail(email, password, profile);
       setUser(res.data?.user || null);
       return res;
     },

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAssociateAuth } from '@kunk/auth-session';
 import { AlertError, AuthLoginCard, PasswordInput } from '@kunk/ui';
 import { ApiError } from '@kunk/api-client';
+import { PhoneInput } from '@kunk/forms';
 import { Icon } from '../components/Icon.jsx';
 
 const MIN_PASSWORD_LENGTH = 8;
@@ -10,6 +11,8 @@ const MIN_PASSWORD_LENGTH = 8;
 export function SignupPage() {
   const { registerEmail } = useAssociateAuth();
   const navigate = useNavigate();
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
@@ -19,6 +22,14 @@ export function SignupPage() {
   async function onSubmit(e) {
     e.preventDefault();
     setError(null);
+    if (!name.trim()) {
+      setError('Informe seu nome.');
+      return;
+    }
+    if (phone.replace(/\D/g, '').length < 12) {
+      setError('Informe seu WhatsApp com DDD.');
+      return;
+    }
     if (password.length < MIN_PASSWORD_LENGTH) {
       setError(`A senha deve ter ao menos ${MIN_PASSWORD_LENGTH} caracteres.`);
       return;
@@ -29,7 +40,10 @@ export function SignupPage() {
     }
     setBusy(true);
     try {
-      await registerEmail(email.trim(), password);
+      await registerEmail(email.trim(), password, {
+        associate_name: name.trim(),
+        mobile_number: phone,
+      });
       navigate('/bem-vindo');
     } catch (err) {
       if (err instanceof ApiError) {
@@ -45,9 +59,28 @@ export function SignupPage() {
   return (
     <AuthLoginCard onSubmit={onSubmit} heading="Cadastro de Associado">
       <p className="auth-login-card-lead">
-        Para iniciar seu cadastro, preencha seu e-mail e defina uma senha.
+        Para iniciar seu cadastro, informe seu nome, seu WhatsApp e seu e-mail, e defina uma senha.
       </p>
       <AlertError message={error} />
+      <div className="auth-login-field">
+        <label htmlFor="signup-name">Nome</label>
+        <input
+          id="signup-name"
+          type="text"
+          required
+          autoComplete="given-name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+      </div>
+      <div className="auth-login-field">
+        <label htmlFor="signup-phone">WhatsApp</label>
+        <PhoneInput
+          value={phone}
+          onChange={setPhone}
+          inputProps={{ id: 'signup-phone', required: true }}
+        />
+      </div>
       <div className="auth-login-field">
         <label htmlFor="signup-email">E-mail</label>
         <input
